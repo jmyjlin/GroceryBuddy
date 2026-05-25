@@ -7,6 +7,34 @@
 
 import SwiftUI
 
+struct GroceryItem: Identifiable, Codable {
+    var id = UUID()
+    let name: String
+    let type: String
+}
+
+@Observable
+class GroceryItems {
+    var items = [GroceryItem]() {
+        didSet {
+            if let encoded = try? JSONEncoder.encode(items) {
+                UserDefaults.standard.set(encoded, forKey: "Items")
+            }
+        }
+    }
+    
+    init() {
+        if let savedItems = UserDefaults.standard.data(forKey: "Items") {
+            if let decodedItems = try? JSONDecoder().decode([GroceryItem].self, from: savedItems) {
+                items = decodedItems
+                return
+            }
+        }
+        
+        items = []
+    }
+}
+
 struct ContentView: View {
     var body: some View {
         VStack {
